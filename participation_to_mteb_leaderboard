@@ -1,0 +1,10 @@
+from sentence_transformers import SentenceTransformer
+
+from mteb import MTEB
+model_name = "AbderrahmanSkiredj1/Arabic_text_embedding_for_sts"
+model = SentenceTransformer(model_name)
+tasks  = ["STS17"]
+evaluation = MTEB(tasks=tasks, task_langs=["ar"])
+evaluation.run(model, output_folder=f"results/ar/{model_name.split('/')[-1]}")
+
+!mteb create_meta --results_folder "results/ar/Arabic_text_embedding_for_sts/AbderrahmanSkiredj1__Arabic_text_embedding_for_sts/2a78b02de43b72cecb0c43a4a2c757037fa99144" --output_path model_card.md
