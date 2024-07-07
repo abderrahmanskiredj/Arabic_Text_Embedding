@@ -17,16 +17,15 @@ from sentence_transformers.training_args import BatchSamplers
 logging.basicConfig(format="%(asctime)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S", level=logging.INFO)
 
 #model_name = sys.argv[1] if len(sys.argv) > 1 else "distilroberta-base"
-model_name = "distilroberta-base"
 model_name = "aubmindlab/bert-base-arabertv02"
-model_name= "output/matryoshkav1_11000"
-model_name = 'output/matryoshka_nli_v3fromv1_output-matryoshkav1_11000-2024-07-06_22-30-55/checkpoint-1200'
+model_name= "AbderrahmanSkiredj1/arabic_text_embedding_sts_arabertv02_arabicnlitriplet"
+
 batch_size = 64  # The larger you select this, the better the results (usually). But it requires more GPU memory
 num_train_epochs = 10
 matryoshka_dims = [768, 512, 256, 128, 64]
 
 # Save path of the model
-output_dir = f"output/matryoshka_nli_v4fromv3_{model_name.replace('/', '-')}-{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
+output_dir = f"output/matryoshka_arabert_{model_name.replace('/', '-')}-{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
 
 # 1. Here we define our SentenceTransformer model. If not already a Sentence Transformer model, it will automatically
 # create one with "mean" pooling.
@@ -36,8 +35,7 @@ model = SentenceTransformer(model_name)
 logging.info(model)
 
 # 2. Load the AllNLI dataset: https://huggingface.co/datasets/sentence-transformers/all-nli
-dataset_name = "sentence-transformers/all-nli"
-dataset_name = "Omartificial-Intelligence-Space/Arabic-NLi-Triplet"
+
 dataset_name = "AbderrahmanSkiredj1/ArabicQuoraDuplicates_stsb_Alue_holyquran_aranli_900k_anchor_positive_negative"
 
 '''train_dataset = load_dataset(dataset_name, "triplet", split="train")
@@ -55,9 +53,8 @@ train_loss = losses.MatryoshkaLoss(model, inner_train_loss, matryoshka_dims=matr
 
 # 4. Define an evaluator for use during training. This is useful to keep track of alongside the evaluation loss.
 
-eval_dataset_name = "sentence-transformers/stsb"
+
 eval_dataset_name = "Omartificial-Intelligence-Space/Arabic-stsb"
-#eval_dataset_name = dataset_name
 stsb_eval_dataset = load_dataset(eval_dataset_name, split="validation")
 evaluators = []
 for dim in matryoshka_dims:
@@ -143,17 +140,3 @@ test_evaluator(model)
 # 8. Save the trained & evaluated model locally
 final_output_dir = f"{output_dir}/final"
 model.save(final_output_dir)
-
-# 9. (Optional) save the model to the Hugging Face Hub!
-# It is recommended to run `huggingface-cli login` to log into your Hugging Face account first
-model_name = model_name if "/" not in model_name else model_name.split("/")[-1]
-'''
-try:
-    model.push_to_hub(f"{model_name}-nli-matryoshka")
-except Exception:
-    logging.error(
-        f"Error uploading model to the Hugging Face Hub:\n{traceback.format_exc()}To upload it manually, you can run "
-        f"`huggingface-cli login`, followed by loading the model using `model = SentenceTransformer({final_output_dir!r})` "
-        f"and saving it using `model.push_to_hub('{model_name}-nli-matryoshka')`."
-    )
-'''
